@@ -20,14 +20,27 @@ class Calculator:
                       command=lambda t=text: self.on_click(t)).grid(row=row, column=col)
 
     def on_click(self, char):
+        current_text = self.result.get()
+
         if char == '=':
+            # Verificar si la expresión es válida antes de intentar evaluarla
             try:
+                # Asegurarse de que no termine en un operador
+                if current_text[-1] in '+-*/':
+                    raise ValueError("Operador final no válido.")
+                
+                # Intentar evaluar la expresión
                 self.result.delete(0, tk.END)
-                self.result.insert(tk.END, str(eval(self.result.get())))
-            except Exception:
+                self.result.insert(tk.END, str(eval(current_text)))
+            except Exception as e:
                 self.result.delete(0, tk.END)
                 self.result.insert(tk.END, "Error")
         else:
+            # Evitar la inserción repetida de operadores, como +++ o --, o el punto decimal en el mismo número
+            if (char in '+-*/' and current_text and current_text[-1] in '+-*/'):
+                return
+            if char == '.' and '.' in current_text.split()[-1]:
+                return
             self.result.insert(tk.END, char)
 
 if __name__ == "__main__":
